@@ -58,6 +58,7 @@
         <label>Number of installments: <input type="number" class="installments" value="${installments}"></label>
         <label>Select Cards: <button type="button" onclick="selectAllCards(this)">Select All</button></label>
         <select multiple class="cards">${cardOptions}</select>
+        <button onclick="duplicateOption(this)">Duplicate</button>
         <button onclick="this.parentElement.remove()">Remove</button>
       `;
       container.appendChild(div);
@@ -66,6 +67,14 @@
     function selectAllCards(button) {
       const select = button.parentElement.nextElementSibling;
       Array.from(select.options).forEach(opt => opt.selected = true);
+    }
+
+    function duplicateOption(button) {
+      const optionDiv = button.parentElement;
+      const minTotal = optionDiv.querySelector('.minTotal').value;
+      const installments = optionDiv.querySelector('.installments').value;
+      const selectedCards = Array.from(optionDiv.querySelector('.cards').selectedOptions).map(o => o.value);
+      addOption(minTotal, installments, selectedCards);
     }
 
     function generateJSON() {

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Installment JSON Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .option { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
+    label { display: block; margin-top: 5px; }
+    button { margin-top: 10px; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+    #output { white-space: pre-wrap; background: #f4f4f4; padding: 10px; border-radius: 8px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Installment JSON Generator</h1>
+  <div id="optionsContainer"></div>
+  <button onclick="addOption()">Add Installment Option</button>
+  <button onclick="generateJSON()">Generate JSON</button>
+  <button onclick="resetForm()">Reset</button>
+
+  <h3>Generated JSON:</h3>
+  <div id="output"></div>
+
+  <script>
+    function addOption(min = '', installments = '', cards = []) {
+      const container = document.getElementById('optionsContainer');
+      const div = document.createElement('div');
+      div.className = 'option';
+      div.innerHTML = `
+        <label>Minimum order total: <input type="number" class="minTotal" value="${min}"></label>
+        <label>Number of installments: <input type="number" class="installments" value="${installments}"></label>
+        <label>Enable cards:</label>
+        <label><input type="checkbox" value="visa" ${cards.includes('visa') ? 'checked' : ''}> Visa</label>
+        <label><input type="checkbox" value="mc" ${cards.includes('mc') ? 'checked' : ''}> Mastercard</label>
+        <label><input type="checkbox" value="amex" ${cards.includes('amex') ? 'checked' : ''}> Amex</label>
+        <button onclick="this.parentElement.remove()">Remove</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function generateJSON() {
+      const options = document.querySelectorAll('.option');
+      const data = [];
+      options.forEach(option => {
+        const minTotal = parseInt(option.querySelector('.minTotal').value);
+        const installments = parseInt(option.querySelector('.installments').value);
+        const cards = Array.from(option.querySelectorAll('input[type=checkbox]:checked')).map(c => c.value);
+        data.push([minTotal, installments, cards]);
+      });
+      document.getElementById('output').textContent = JSON.stringify(data, null, 3);
+    }
+
+    function resetForm() {
+      document.getElementById('optionsContainer').innerHTML = '';
+      document.getElementById('output').textContent = '';
+    }
+
+    // Add an initial option for convenience
+    addOption();
+  </script>
+</body>
+</html>

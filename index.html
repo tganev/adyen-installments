@@ -9,13 +9,14 @@
     .option { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
     label { display: block; margin-top: 5px; }
     button { margin-top: 10px; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+    select[multiple] { width: 100%; height: 150px; margin-top: 5px; }
     #output { white-space: pre-wrap; background: #f4f4f4; padding: 10px; border-radius: 8px; margin-top: 20px; }
   </style>
 </head>
 <body>
-  <h1>Instalment JSON Generator</h1>
+  <h1>Installment JSON Generator</h1>
   <div id="optionsContainer"></div>
-  <button onclick="addOption()">Add Instalment Option</button>
+  <button onclick="addOption()">Add Installment Option</button>
   <button onclick="generateJSON()">Generate JSON</button>
   <button onclick="resetForm()">Reset</button>
 
@@ -23,20 +24,47 @@
   <div id="output"></div>
 
   <script>
-    function addOption(min = '', installments = '', cards = []) {
+    const supportedCards = [
+      { id: 'amex', label: 'Amex' }, { id: 'argencard', label: 'Argencard' },
+      { id: 'bcmc', label: 'Bancontact/Mister Cash' }, { id: 'bijcard', label: 'de Bijenkorf Card' },
+      { id: 'cabal', label: 'Cabal' }, { id: 'cartebancaire', label: 'Carte Bancaires' },
+      { id: 'codensa', label: 'Codensa' }, { id: 'cup', label: 'China Union Pay' },
+      { id: 'dankort', label: 'Dankort' }, { id: 'diners', label: 'Diners Club' },
+      { id: 'discover', label: 'Discover' }, { id: 'electron', label: 'Electron' },
+      { id: 'elo', label: 'ELO' }, { id: 'forbrugsforeningen', label: 'Forbrugsforeningen' },
+      { id: 'hiper', label: 'HiperCard' }, { id: 'hipercard', label: 'HiperCard' },
+      { id: 'jcb', label: 'JCB' }, { id: 'karenmillen', label: 'Karen Millen GiftCard' },
+      { id: 'laser', label: 'Laser' }, { id: 'maestro', label: 'Maestro' },
+      { id: 'maestrouk', label: 'Maestro UK' }, { id: 'mc', label: 'Mastercard' },
+      { id: 'mcalphabankbonus', label: 'Alpha Bank Mastercard Bonus' }, { id: 'mir', label: 'MIR' },
+      { id: 'naranja', label: 'Naranja' }, { id: 'oasis', label: 'Oasis GiftCard' },
+      { id: 'rupay', label: 'RuPay' }, { id: 'shopping', label: 'Tarjeta Shopping' },
+      { id: 'solo', label: 'Solo' }, { id: 'troy', label: 'Troy' },
+      { id: 'uatp', label: 'UATP' }, { id: 'visa', label: 'Visa' },
+      { id: 'visaalphabankbonus', label: 'Alpha Bank Visa Bonus' },
+      { id: 'visadankort', label: 'Visa Dankort' }, { id: 'warehouse', label: 'Warehouse GiftCard' }
+    ];
+
+    function addOption(min = '', installments = '', selectedCards = []) {
       const container = document.getElementById('optionsContainer');
       const div = document.createElement('div');
       div.className = 'option';
+
+      let cardOptions = supportedCards.map(card => `<option value="${card.id}" ${selectedCards.includes(card.id) ? 'selected' : ''}>${card.label}</option>`).join('');
+
       div.innerHTML = `
         <label>Minimum order total: <input type="number" class="minTotal" value="${min}"></label>
         <label>Number of installments: <input type="number" class="installments" value="${installments}"></label>
-        <label>Enable cards:</label>
-        <label><input type="checkbox" value="visa" ${cards.includes('visa') ? 'checked' : ''}> Visa</label>
-        <label><input type="checkbox" value="mc" ${cards.includes('mc') ? 'checked' : ''}> Mastercard</label>
-        <label><input type="checkbox" value="amex" ${cards.includes('amex') ? 'checked' : ''}> Amex</label>
+        <label>Select Cards: <button type="button" onclick="selectAllCards(this)">Select All</button></label>
+        <select multiple class="cards">${cardOptions}</select>
         <button onclick="this.parentElement.remove()">Remove</button>
       `;
       container.appendChild(div);
+    }
+
+    function selectAllCards(button) {
+      const select = button.parentElement.nextElementSibling;
+      Array.from(select.options).forEach(opt => opt.selected = true);
     }
 
     function generateJSON() {
@@ -45,7 +73,7 @@
       options.forEach(option => {
         const minTotal = parseInt(option.querySelector('.minTotal').value);
         const installments = parseInt(option.querySelector('.installments').value);
-        const cards = Array.from(option.querySelectorAll('input[type=checkbox]:checked')).map(c => c.value);
+        const cards = Array.from(option.querySelector('.cards').selectedOptions).map(o => o.value);
         data.push([minTotal, installments, cards]);
       });
       document.getElementById('output').textContent = JSON.stringify(data, null, 3);
@@ -56,7 +84,6 @@
       document.getElementById('output').textContent = '';
     }
 
-    // Add an initial option for convenience
     addOption();
   </script>
 </body>
